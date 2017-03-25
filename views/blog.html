@@ -14,7 +14,7 @@
         {% for article in articles %}
         <div class="article-list-item">
 
-            <a href="/article/{{article.id}}">
+            <a href="/articles/{{article.id}}">
                 <h2 class="text-primary">{{article.title}}</h2>
             </a>
             <p class="text-muted">{{article.createdAt|date('Y-m-d H:i:s', -480, 'CCT')}}</p>

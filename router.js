@@ -2,7 +2,10 @@ const db = require('./model'),
     Router = require('koa-router'),
     swig = require('koa-swig'),
     path = require('path'),
-    co = require('co');
+    co = require('co'),
+    bodyparser = require('koa-bodyparser'),
+    marked = require('marked');
+
 
 const blog = new Router();
 module.exports = blog;
@@ -14,6 +17,8 @@ const render = co.wrap(swig({
 }));
 
 const perpage = 20;
+
+blog.use(bodyparser());
 
 blog.use(async(ctx, next) => {
     ctx.cates = await db.Category.findAll();
@@ -83,82 +88,59 @@ blog.get('/cate/:name', async ctx => {
     });
 });
 
-// // Blog editor
-// blog.get('/publish', function(request, response) {
-//     response.render('blog/publish.html');
-// });
-// // Article page
-// blog.get('/:id', function(request, response) {
-//     Article.findOne({
-//             where: { id: request.params.id }
-//         })
-//         .then(x => response.render('blog/article.html', {
-//             article: x,
-//             article_content: marked(x.content),
-//             tags: request.tags,
-//             cates: request.categories
-//         }));
-// });
-// // Publish article
-// blog.post('/api/publish', function(request, response) {
-//     var article;
-//     Promise.all([
-//             Promise.all(
-//                 request.body.tags.map(
-//                     x => Tag.findOne({ where: { name: x } })
-//                 )),
-//             Promise.all([
-//                 Article.create({
-//                     title: request.body.title,
-//                     summary: request.body.summary,
-//                     content: request.body.content
-//                 })
-//                 .then(x => article = x),
-//                 Category.findOne({
-//                     where: { name: request.body.cate }
-//                 })
-//             ])
-//             .then(
-//                 x => article.setCategory(x[1]),
-//                 x => response.json({
-//                     result: "failed",
-//                     message: x[0] + x[1]
-//                 })),
-//         ])
-//         .then(x => article.setTags(x[0]),
-//             x => response.json({
-//                 result: "failed",
-//                 message: x[0] + x[1]
-//             }))
-//         .then(() => response.json({
-//             result: "success",
-//             url: "/blog/" + article.id
-//         }), x => response.json(x));
-// });
-// // Get tags
-// blog.get('/api/tags', function(request, response) {
-//     response.json(request.tags)
-// });
-// // Add a tag
-// blog.post('/api/tags', function(request, response) {
-//     Tag.create({ name: request.body.name })
-//         .then(x => response.json({
-//             result: "success",
-//             url: ""
-//         }), x => response.json(x));
-// });
-// // Get categories
-// blog.get('/api/categories', function(request, response) {
-//     response.json(request.Categories)
-// });
-// // Add a category
-// blog.post('/api/categories', function(request, response) {
-//     Category.create({
-//             name: request.body.name,
-//             title: request.body.title
-//         })
-//         .then(x => response.json({
-//             result: "success",
-//             url: ""
-//         }), x => response.json(x));
-// });
+// Article page
+blog.get('/articles/:id', async ctx => {
+    let article = await db.Article.findOne({ where: { id: ctx.params.id } });
+    if (!article) { ctx.redirect('/'); return; }
+    ctx.body = await render('article.html', {
+        article: article,
+        article_content: marked(article.content),
+        tags: ctx.tags,
+        cates: ctx.cates
+    });
+});
+
+// Blog editor
+blog.get('/publish', async ctx => {
+    ctx.body = await render('editor.html');
+});
+
+blog.post('/api/articles', async ctx => {
+    if (!ctx.request.body.tags) { ctx.body = { result: 'failed', message: 'No Tags' }; return; }
+    var tags = (await db.Tag.findAll()).filter(x => ctx.request.body.tags.some(y => y.name));
+    var cate = await db.Category.findOne({ where: { name: ctx.request.body.cate } });
+    if (!cate) { ctx.body = { result: 'failed', message: 'Invalid Category' }; return; }
+    var article = await db.Article.create({
+        title: ctx.request.body.title,
+        summary: ctx.request.body.summary,
+        content: ctx.request.body.content
+    });
+    article.setCategory(cate);
+    article.setTags(tags);
+    ctx.body = { result: 'success', url: 'articles/' + article.id };
+});
+
+blog.get('/api/tags', ctx => {
+    ctx.body = ctx.tags;
+});
+
+blog.post('/api/tags', async ctx => {
+    if (!ctx.request.body.name) { ctx.body = { result: 'failed', message: 'Invalid tag name' }; return; }
+    let tag = await db.Tag.create({
+        name: ctx.request.body.name,
+    });
+    ctx.body = { result: 'success', tag: tag };
+});
+
+blog.get('/api/categories', ctx => {
+    ctx.body = ctx.cates;
+});
+
+blog.post('/api/categories', async ctx => {
+    if (!(ctx.request.body.name && ctx.request.body.title)) { ctx.body = { result: 'failed', message: 'Invalid category' }; return; }
+    let cate = await db.Category.create({
+        name: ctx.request.body.name,
+        title: ctx.request.body.title
+    });
+    ctx.body = { result: 'success', category: cate };
+});

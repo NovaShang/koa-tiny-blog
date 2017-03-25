@@ -1,11 +1,25 @@
-{% extends "../two-columns.html" %} {% block head %}
-<link href="/static/css/highlight.css" rel="stylesheet" type="text/css" /> {% endblock %} {% block metadata %}
-<meta name="description" content="{{article.summary}}"> {% endblock %} {% block title %} {{article.title}} - Nova {% endblock %} {% block maincol %}
-<div class="page-header">
-    <h1>{{article.title}}</h1>
-    <p>{{article.createTime}}</p>
+{% extends "base.html" %} {% block head %}
+<link href="/css/highlight.css" rel="stylesheet" type="text/css" /> {% endblock %} {% block metadata %}
+<meta name="description" content="{{article.summary}}"> {% endblock %} {% block title %} {{article.title}} - Nova {% endblock %} {% block content %}
+
+
+
+<div class="col-xs-12 col-sm-8 col-md-9">
+    <div class="page-header">
+        <h1>{{article.title}}</h1>
+        <p>{{article.createdAt|date('Y-m-d H:i:s', -480, 'CCT')}}</p>
+    </div>
+
+    <div class="article-content">
+        {{article_content | safe }}
+    </div>
 </div>
-<div class="article-content">
-    {{article_content|safe}}
+
+<div class="col-xs-12 col-sm-4 col-md-3">
+    {% include "right-column.html" %}
 </div>
-{% endblock %} {% block rightcol %} {% include "right-column.html" %} {% endblock %}
+<script src="/js/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad()
+</script>
+{% endblock %}

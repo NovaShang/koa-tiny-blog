@@ -1,13 +1,14 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 <!--标题-->
-{% block title %}发布文章{% endblock %}
+{% block title %}Publish New Article{% endblock %}
 <!--引用-->
 {% block head %}
-<script src="/static/js/vue.js"></script>
-<script src="/static/js/vue-resource.js"></script>
-<script src="/static/js/marked.js"></script>
-<script src="/static/js/lodash.js"></script>
-<link href="/static/css/editor.css" rel="stylesheet" type="text/css" /> {% endblock %}
+<script src="/js/vue.js"></script>
+<script src="/js/vue-resource.js"></script>
+<script src="/js/marked.js"></script>
+<script src="/js/lodash.js"></script>
+<!--<link href="/css/editor.css" rel="stylesheet" type="text/css" />-->
+{% endblock %}
 <!--正文-->
 {% block content %}
 <!--博文编辑器-->
@@ -108,7 +109,7 @@
                 this.mdSrc = e.target.value;
             }, 300),
             publish: function() {
-                $.post('/api/blog/publish', {
+                $.post('/api/articles', {
                     title: this.title,
                     cate: this.currentCate,
                     tags: this.currentTags,
@@ -124,7 +125,7 @@
             },
             addNewTag: function() {
                 this.currentTags.push(this.newtag);
-                $.post("/api/blog/tags", {
+                $.post("/api/tags", {
                     name: this.newtag
                 }, function(data) {
                     if (data.result != "success") {
@@ -135,14 +136,14 @@
 
             },
             addNewCate: function() {
-                $.post("/api/blog/categories", {
+                $.post("/api/categories", {
                     name: this.newCateName,
                     title: this.newCateTitle
                 }, function(data) {
                     if (data.result != "success") {
                         alert(data.message);
                     } else {
-                        $.get("/api/blog/categories", function(data) {
+                        $.get("/api/categories", function(data) {
                             app.cates = data;
                         })
                     }
@@ -154,10 +155,10 @@
 
         }
     });
-    $.get("/api/blog/tags", function(data) {
+    $.get("/api/tags", function(data) {
         app.tags = data.map(x => x.name);
     });
-    $.get("/api/blog/categories", function(data) {
+    $.get("/api/categories", function(data) {
         app.cates = data;
     })
     document.getElementById("markdown-editor").style.height = window.innerHeight - 125 + "px";
