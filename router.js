@@ -105,6 +105,17 @@ blog.get('/publish', async ctx => {
     ctx.body = await render('editor.html');
 });
 
+
+// Manager
+blog.get('/manage', async ctx => {
+    ctx.body = await render('manager.html')
+
+});
+
+blog.get('/api/articles', async ctx => {
+    ctx.body = await db.Article.findAll();
+});
+
 blog.post('/api/articles', async ctx => {
     if (!ctx.request.body.tags) { ctx.body = { result: 'failed', message: 'No Tags' }; return; }
     var tags = (await db.Tag.findAll()).filter(x => ctx.request.body.tags.some(y => y.name));
@@ -120,6 +131,26 @@ blog.post('/api/articles', async ctx => {
     ctx.body = { result: 'success', url: 'articles/' + article.id };
 });
 
+blog.put('/api/articles', async ctx => {
+    var article = await db.Article.findOne({
+        where: { id: ctx.request.body.id }
+    });
+    if (!article) { ctx.body = { result: 'failed', message: 'Article Not Found!' }; return; }
+    article.title = ctx.request.body.title;
+    article.content = ctx.request.body.content;
+    article.summary = ctx.request.body.summary;
+    await article.save();
+    ctx.body = { result: 'success', url: 'articles/' + article.id };
+});
+
+blog.delete('/api/articles', async ctx => {
+    var article = await db.Article.findOne({ where: { id: ctx.request.body.id } });
+    if (!article) { ctx.body = { result: 'failed', message: 'Article Not Found!' }; return; }
+    await article.remove();
+    ctx.body = { result: 'success' };
+
+})
+
 blog.get('/api/tags', ctx => {
     ctx.body = ctx.tags;
 });
@@ -132,6 +163,21 @@ blog.post('/api/tags', async ctx => {
     ctx.body = { result: 'success', tag: tag };
 });
 
+blog.put('/api/tags', async ctx => {
+    let tag = db.Tag.findOne({ where: { id: ctx.request.body.id } });
+    if (!tag) { ctx.body = { result: 'failed', message: 'Tag Not Found!' }; return; }
+    tag.name = ctx.request.body.name;
+    await tag.save();
+    ctx.body = { result: 'success' };
+});
+
+blog.delete('api/tags', async ctx => {
+    let tag = db.Tag.findOne({ where: { id: ctx.request.body.id } });
+    if (!tag) { ctx.body = { result: 'failed', message: 'Tag Not Found!' }; return; }
+    await tag.remove();
+    ctx.body = { result: 'success' };
+})
+
 blog.get('/api/categories', ctx => {
     ctx.body = ctx.cates;
 });
@@ -142,5 +188,21 @@ blog.post('/api/categories', async ctx => {
         name: ctx.request.body.name,
         title: ctx.request.body.title
     });
+    ctx.body = { result: 'success', category: cate };
+});
+
+blog.put('/api/categories', async ctx => {
+    let category = await db.Category.findOne({ where: { id: ctx.request.body.id } });
+    if (!category) { ctx.body = { result: 'failed', message: 'Category Not Found!' }; return; }
+    category.name = ctx.request.body.name;
+    category.title = ctx.request.body.title;
+    await category.save()
+    ctx.body = { result: 'success', category: cate };
+});
+
+blog.delete('/api/categories', async ctx => {
+    let category = await db.Category.findOne({ where: { id: ctx.request.body.id } });
+    if (!category) { ctx.body = { result: 'failed', message: 'Category Not Found!' }; return; }
+    await category.remove()
     ctx.body = { result: 'success', category: cate };
 });
