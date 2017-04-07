@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\public",
+    "\\public\\js"
   ],
-  "SelectedNode": "\\router.js",
+  "SelectedNode": "\\public\\manager.html",
   "PreviewInSolutionExplorer": false
 }
