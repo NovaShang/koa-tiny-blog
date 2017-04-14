@@ -18,13 +18,20 @@ const Category = sequelize.define('category', {
     name: Sequelize.STRING,
     title: Sequelize.STRING
 });
+const BlogComment = sequelize.define('comment', {
+    content: Sequelize.TEXT,
+    uid: Sequelize.STRING,
+    uname: Sequelize.STRING
+});
 
 //Build assosiation relationship between models
 Article.belongsTo(Category);
+BlogComment.belongsTo(Article);
 Article.belongsToMany(Tag, { through: 'article2tag' });
 Tag.belongsToMany(Article, { through: 'article2tag' });
 
 exports.Article = Article;
 exports.Tag = Tag;
 exports.Category = Category;
+exports.Comment = BlogComment;
 exports.dbContext = sequelize;
