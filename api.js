@@ -2,15 +2,15 @@ const Router = require("koa-router");
 const db = require('./model');
 const bodyparser = require('koa-bodyparser');
 
-const api = new Router();
+const router = new Router();
 
-api.get('/articles', async ctx => {
+router.get('/articles', async ctx => {
     ctx.body = await db.Article.findAll();
 });
 
 router.use(bodyparser());
 
-api.post('/articles', async ctx => {
+router.post('/articles', async ctx => {
     if (!ctx.request.body.tags) { ctx.body = { result: 'failed', message: 'No Tags' }; return; }
     var tags = (await db.Tag.findAll()).filter(x => ctx.request.body.tags.some(y => y.name));
     var cate = await db.Category.findOne({ where: { name: ctx.request.body.cate } });
@@ -25,7 +25,7 @@ api.post('/articles', async ctx => {
     ctx.body = { result: 'success', url: 'articles/' + article.id };
 });
 
-api.put('/articles', async ctx => {
+router.put('/articles', async ctx => {
     var article = await db.Article.findOne({
         where: { id: ctx.request.body.id }
     });
@@ -37,7 +37,7 @@ api.put('/articles', async ctx => {
     ctx.body = { result: 'success', url: 'articles/' + article.id };
 });
 
-api.delete('/articles', async ctx => {
+router.delete('/articles', async ctx => {
     var article = await db.Article.findOne({ where: { id: ctx.request.body.id } });
     if (!article) { ctx.body = { result: 'failed', message: 'Article Not Found!' }; return; }
     await article.remove();
@@ -45,11 +45,11 @@ api.delete('/articles', async ctx => {
 
 })
 
-api.get('/tags', async ctx => {
+router.get('/tags', async ctx => {
     ctx.body = await db.Tag.findAll();
 });
 
-api.post('/tags', async ctx => {
+router.post('/tags', async ctx => {
     if (!ctx.request.body.name) { ctx.body = { result: 'failed', message: 'Invalid tag name' }; return; }
     let tag = await db.Tag.create({
         name: ctx.request.body.name,
@@ -57,7 +57,7 @@ api.post('/tags', async ctx => {
     ctx.body = { result: 'success', tag: tag };
 });
 
-api.put('/tags', async ctx => {
+router.put('/tags', async ctx => {
     let tag = db.Tag.findOne({ where: { id: ctx.request.body.id } });
     if (!tag) { ctx.body = { result: 'failed', message: 'Tag Not Found!' }; return; }
     tag.name = ctx.request.body.name;
@@ -65,18 +65,18 @@ api.put('/tags', async ctx => {
     ctx.body = { result: 'success' };
 });
 
-api.delete('api/tags', async ctx => {
+router.delete('api/tags', async ctx => {
     let tag = db.Tag.findOne({ where: { id: ctx.request.body.id } });
     if (!tag) { ctx.body = { result: 'failed', message: 'Tag Not Found!' }; return; }
     await tag.remove();
     ctx.body = { result: 'success' };
 })
 
-api.get('/categories', async ctx => {
+router.get('/categories', async ctx => {
     ctx.body = await db.Category.findAll();
 });
 
-api.post('/categories', async ctx => {
+router.post('/categories', async ctx => {
     if (!(ctx.request.body.name && ctx.request.body.title)) { ctx.body = { result: 'failed', message: 'Invalid category' }; return; }
     let cate = await db.Category.create({
         name: ctx.request.body.name,
@@ -85,7 +85,7 @@ api.post('/categories', async ctx => {
     ctx.body = { result: 'success', category: cate };
 });
 
-api.put('/categories', async ctx => {
+router.put('/categories', async ctx => {
     let category = await db.Category.findOne({ where: { id: ctx.request.body.id } });
     if (!category) { ctx.body = { result: 'failed', message: 'Category Not Found!' }; return; }
     category.name = ctx.request.body.name;
@@ -94,11 +94,11 @@ api.put('/categories', async ctx => {
     ctx.body = { result: 'success', category: cate };
 });
 
-api.delete('/categories', async ctx => {
+router.delete('/categories', async ctx => {
     let category = await db.Category.findOne({ where: { id: ctx.request.body.id } });
     if (!category) { ctx.body = { result: 'failed', message: 'Category Not Found!' }; return; }
     await category.remove()
     ctx.body = { result: 'success', category: cate };
 });
 
-module.exports = api.routes();
+module.exports = router.routes();

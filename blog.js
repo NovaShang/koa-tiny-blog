@@ -1,11 +1,26 @@
-const db = require('./model'),
-    Router = require('koa-router'),
-    path = require('path'),
-    marked = require('marked');
+const db = require('./model');
+const Router = require('koa-router');
+const marked = require('marked');
 
+module.exports = blog;
 
-
-module.exports = function(newconf) {
+/**
+* 啦啦啦
+* 啦啦啦
+*   {
+*       urlbase: '/blog',
+*       apiurl:  '/api/blog',
+*       title:  'Koa Tiny Blog',
+*       views:  {
+*            manager: 'manager.html',
+*            editor: 'editor.html',
+*            manager: 'manager.html',
+*            editor: 'editor.html',
+*   }
+* @param {Object} newconf 
+* @example 
+*/
+function blog(newconf) {
 
     const router = new Router();
     const config = {
@@ -35,13 +50,13 @@ module.exports = function(newconf) {
         let result = await db.Article.findAndCountAll({
             order: 'createdAt DESC',
             include: [db.Category, db.Tag],
-            offset: (page - 1) * perpage,
-            limit: perpage
+            offset: (page - 1) * config.perpage,
+            limit: config.perpage
         });
         ctx.body = await ctx.render(config.views.index, {
             title: config.title,
             articles: result.rows,
-            pages: Math.ceil(result.count / perpage),
+            pages: Math.ceil(result.count / config.perpage),
             cates: ctx.cates,
             tags: ctx.tags,
             config: config
@@ -58,14 +73,14 @@ module.exports = function(newconf) {
         let articles = await tag.getArticles({
             include: [{ model: db.Tag }],
             order: 'article.createdAt DESC',
-            offset: (page - 1) * perpage,
-            limit: perpage
+            offset: (page - 1) * config.perpage,
+            limit: config.perpage
         });
         ctx.body = await ctx.render(config.views.index, {
             title: tag.name,
             sub_title: 'Tag',
             articles: articles,
-            pages: Math.ceil(num / perpage),
+            pages: Math.ceil(num / config.perpage),
             cates: ctx.cates,
             tags: ctx.tags,
             config: config
@@ -81,14 +96,14 @@ module.exports = function(newconf) {
         let result = await db.Article.findAndCountAll({
             include: [db.Category, db.Tag],
             where: { categoryId: cate.id },
-            offset: (page - 1) * perpage,
-            limit: perpage
+            offset: (page - 1) * config.perpage,
+            limit: config.perpage
         });
         ctx.body = await ctx.render(config.views.index, {
             title: cate.title,
             sub_title: 'Category',
             articles: result.rows,
-            pages: Math.ceil(result.count / perpage),
+            pages: Math.ceil(result.count / config.perpage),
             cates: ctx.cates,
             tags: ctx.tags,
             config: config

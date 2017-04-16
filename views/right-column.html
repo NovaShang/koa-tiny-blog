@@ -4,7 +4,7 @@
             分类
         </div>
         <ul class="list-group"> {% for cate in cates %}
-            <a href="/cate/{{cate.name}}">
+            <a href="{{config.urlbase}}/cate/{{cate.name}}">
                 <li class="list-group-item">{{cate.title}}</li>
             </a>
             {% endfor %}
@@ -17,7 +17,7 @@
         <div class="panel-body">
             <p>
                 {% for tag in tags %}
-                <a href="/tag/{{tag.id}}"> <span class="label label-primary">{{tag.name}}</span></a>
+                <a href="{{config.urlbase}}/tag/{{tag.id}}"> <span class="label label-primary">{{tag.name}}</span></a>
                 {% endfor %}
             </p>
         </div>
