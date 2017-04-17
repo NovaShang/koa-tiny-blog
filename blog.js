@@ -1,25 +1,24 @@
-const db = require('./model');
+const DB = require('./model');
+const api = require('./api');
 const Router = require('koa-router');
 const marked = require('marked');
-
 module.exports = blog;
 
 /**
-* 啦啦啦
-* 啦啦啦
-*   {
-*       urlbase: '/blog',
-*       apiurl:  '/api/blog',
-*       title:  'Koa Tiny Blog',
-*       views:  {
-*            manager: 'manager.html',
-*            editor: 'editor.html',
-*            manager: 'manager.html',
-*            editor: 'editor.html',
-*   }
-* @param {Object} newconf 
-* @example 
-*/
+ * 啦啦啦
+ * 啦啦啦
+ *   {
+ *       urlbase: '/blog',
+ *       apiurl:  '/api/blog',
+ *       title:  'Koa Tiny Blog',
+ *       views:  {
+ *            manager: 'manager.html',
+ *            editor: 'editor.html',
+ *            manager: 'manager.html',
+ *            editor: 'editor.html',
+ *   }
+ * @param {Object} newconf 
+ */
 function blog(newconf) {
 
     const router = new Router();
@@ -33,8 +32,14 @@ function blog(newconf) {
             manager: 'manager.html',
             editor: 'editor.html',
         },
+        datebase: newconf.database,
         perpage: newconf.perpage ? newconf.perpage : 20
     }
+
+    const db = new DB(config.datebase);
+
+    router.use('/api', api(config, db));
+
 
     // Add midware : Categories and Tags
     router.use(async(ctx, next) => {
@@ -125,13 +130,13 @@ function blog(newconf) {
 
     // Blog editor
     router.get('/publish', async ctx => {
-        ctx.body = await render(config.views.editor, { config: config });
+        ctx.body = await ctx.render(config.views.editor, { config: config });
     });
 
 
     // Blog Manager
     router.get('/manage', async ctx => {
-        ctx.body = await render(config.views.manager, { config: config })
+        ctx.body = await ctx.render(config.views.manager, { config: config })
 
     });
 

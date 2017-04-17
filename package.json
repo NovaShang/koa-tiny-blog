@@ -4,16 +4,22 @@
     "description": "",
     "main": "blog.js",
     "dependencies": {
-        "koa": "^2.2.0",
         "koa-bodyparser": "^4.2.0",
         "koa-router": "^7.0.0",
         "koa-static": "^3.0.0",
         "marked": "^0.3.6",
         "sequelize": "^3.30.2",
-        "sqlite3": "^3.1.8",
-        "koa2-swig":"^2.2.1"
+        "sqlite3": "^3.1.8"
     },
-    "devDependencies": {},
+    "devDependencies": {
+        "koa": "^2.2.0",
+        "koa2-swig": "^2.2.1"
+    },
+    "files": [
+        "api.js",
+        "blog.js",
+        "model.js"
+    ],
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },

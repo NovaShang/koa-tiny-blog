@@ -126,7 +126,7 @@
                 this.mdSrc = e.target.value;
             }, 300),
             publish: function() {
-                $.post('/api/articles', {
+                $.post('{{config.urlbase}}/api/articles', {
                     title: this.title,
                     cate: this.currentCate,
                     tags: this.currentTags,
@@ -142,7 +142,7 @@
             },
             addNewTag: function() {
                 this.currentTags.push(this.newtag);
-                $.post("/api/tags ", {
+                $.post("{{config.urlbase}}/api/tags ", {
                     name: this.newtag
                 }, function(data) {
                     if (data.result != "success ") {
@@ -152,14 +152,14 @@
                 this.newtag = '';
             },
             addNewCate: function() {
-                $.post("/api/categories ", {
+                $.post("{{config.urlbase}}/api/categories ", {
                     name: this.newCateName,
                     title: this.newCateTitle
                 }, function(data) {
                     if (data.result != "success ") {
                         alert(data.message);
                     } else {
-                        $.get("/api/categories ", function(data) {
+                        $.get("{{config.urlbase}}/api/categories ", function(data) {
                             app.cates = data;
                         })
                     }
@@ -171,14 +171,13 @@
 
         }
     });
-    $.get("/api/tags ", function(data) {
+    $.get("{{config.urlbase}}/api/tags ", function(data) {
         app.tags = data.map(x => x.name);
     });
-    $.get("/api/categories ", function(data) {
+    $.get("{{config.urlbase}}/api/categories ", function(data) {
         app.cates = data;
     })
     document.getElementById("markdown-editor ").style.height = window.innerHeight - 150 + "px ";
 </script>
 
-{% endblock %}
 {% endblock %}
